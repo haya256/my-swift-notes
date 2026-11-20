@@ -24,7 +24,7 @@ permalink: /
 | 記事 | 内容 |
 |---|---|
 | [macOSでSwiftのHello World](docs/01-hello-world.md) | macOSでSwiftをインストールしてHello Worldを表示する3つの方法(スクリプト実行・swiftc・Swift Package) |
-| [macOSのメニューバーにHello Worldを表示する](docs/02-menubar-hello-world.md) | SwiftUIのMenuBarExtraで、画面右上のメニューバーにHello World!を表示する小さなアプリを作る |
+| [macOSのメニューバーにHello Worldを表示する](docs/02-menubar-hello-world.md) | SwiftUIのMenuBarExtraで、画面右上のメニューバーにHello World!を表示する小さなアプリを作り、コマンドラインだけで.appにする |
 
 <!-- toc:end -->
 

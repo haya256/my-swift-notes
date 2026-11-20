@@ -1,10 +1,10 @@
 ---
 title: macOSのメニューバーにHello Worldを表示する
 nav_order: 2
-summary: SwiftUIのMenuBarExtraで、画面右上のメニューバーにHello World!を表示する小さなアプリを作る
-keywords: [メニューバー, ステータスバー, 右上, MenuBarExtra, SwiftUI, App, NSApplication, platforms, Package.swift, swift run, Hello World, macOS]
+summary: SwiftUIのMenuBarExtraで、画面右上のメニューバーにHello World!を表示する小さなアプリを作り、コマンドラインだけで.appにする
+keywords: [メニューバー, ステータスバー, 右上, MenuBarExtra, SwiftUI, App, NSApplication, platforms, Package.swift, swift run, Hello World, macOS, .app, アプリ化, Info.plist, LSUIElement, codesign, アドホック署名, Spotlight, アプリケーションフォルダ]
 checked: 2026-11-20
-verified: 実機
+verified: 一部実機
 thirdparty: []
 source:
   - 実機で確認(macOS 27.2.1、Xcode 付属の Apple Swift 6.4.2)
@@ -99,6 +99,108 @@ swift run
 
 [01-hello-world.md](01-hello-world.md) のサンプルにあった `static func main()` は書かない。`: App` を付けると、アプリの始め方は SwiftUI がやってくれる。
 
+## コマンドラインだけで .app にする
+
+`swift run` はターミナルから動かす練習用の動かし方。ダブルクリックや Spotlight から起動できる `.app` にするのも、コマンドラインだけでできる。
+
+`.app` は、**実行ファイルと設定ファイル(`Info.plist`)を、決まった形のフォルダに入れたもの**。
+
+```
+HelloMenuBar.app/
+└── Contents/
+    ├── Info.plist          ← アプリの名前などの設定
+    └── MacOS/
+        └── HelloMenuBar    ← swift build でできた実行ファイル
+```
+
+毎回手で打つのは大変なので、手順をスクリプトにまとめる。パッケージのフォルダ(`Package.swift` がある所)に `make-app.sh` を作り、次のように書く。
+
+```bash
+#!/bin/bash
+# swift build でできた実行ファイルから .app を作って、起動するスクリプト。
+# 使い方: このフォルダで ./make-app.sh
+set -euo pipefail
+
+# --- 設定(必要ならここだけ直す) ---
+EXE_NAME="HelloMenuBar"                     # swift build でできる実行ファイルの名前(ターゲット名)
+APP_NAME="HelloMenuBar"                     # 作る .app の名前
+BUNDLE_ID="com.example.HelloMenuBar"        # アプリを見分ける ID
+
+cd "$(dirname "$0")"
+
+# 1. 本番用にビルドする
+echo "1. ビルド中..."
+swift build -c release
+BIN_PATH="$(swift build -c release --show-bin-path)/$EXE_NAME"
+
+# 起動中なら終わらせる(古い .app を作り直すため)
+pkill -f "$APP_NAME.app/Contents/MacOS/" 2>/dev/null || true
+
+# 2. .app の形のフォルダを作り、実行ファイルを入れる
+echo "2. $APP_NAME.app を作成中..."
+APP="$APP_NAME.app"
+rm -rf "$APP"
+mkdir -p "$APP/Contents/MacOS"
+cp "$BIN_PATH" "$APP/Contents/MacOS/$APP_NAME"
+
+# 3. Info.plist(アプリの設定ファイル)を作る
+cat > "$APP/Contents/Info.plist" <<EOF
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleExecutable</key>
+    <string>$APP_NAME</string>
+    <key>CFBundleIdentifier</key>
+    <string>$BUNDLE_ID</string>
+    <key>CFBundleName</key>
+    <string>$APP_NAME</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSUIElement</key>
+    <true/>
+</dict>
+</plist>
+EOF
+
+# 4. 自分の Mac で動かすための、かんたんな署名をして起動する
+echo "3. Info.plist を作成しました"; echo "4. 署名して起動します"
+codesign --force --sign - "$APP"
+
+open "$APP"
+echo "できました: $(pwd)/$APP"
+```
+
+実行できるようにしてから、実行する。
+
+```bash
+chmod +x make-app.sh
+./make-app.sh
+```
+
+同じフォルダに `HelloMenuBar.app` ができて起動し、右上に「Hello World!」が出る。
+
+| スクリプトの中のもの | 意味 |
+|---|---|
+| `swift build -c release` | 練習用ではなく、本番用(速く動く)にビルドする |
+| `EXE_NAME` | `swift build` でできる実行ファイルの名前。`Package.swift` の `.executableTarget(name: ...)` と同じにする |
+| `CFBundleExecutable` | 起動する実行ファイルの名前 |
+| `CFBundleIdentifier` | アプリを見分けるための ID。ふつうは逆さのドメイン名で書く |
+| `CFBundlePackageType` | `APPL` は「これはアプリです」という意味 |
+| `LSUIElement` | `true` にすると Dock にアイコンを出さない。メニューバーだけのアプリ向け |
+| `codesign --force --sign -` | 自分の Mac で動かすための、かんたんな署名(アドホック署名) |
+
+### .app の置き場所
+
+- `.app` は、どこに置いてあっても起動できる。パッケージのフォルダに置いたままでも、**Spotlight から起動できた**
+- アプリケーションフォルダ(`/Applications`)に置くと、Launchpad や Finder の「アプリケーション」に出る。パッケージのフォルダを整理しても残る
+
+  ```bash
+  cp -R HelloMenuBar.app /Applications/
+  ```
+
+- コピーしたあとで `./make-app.sh` を実行し直しても、作り直されるのはパッケージのフォルダの方だけ。アプリケーションフォルダの方は古いまま残るので、もう一度コピーする
+
 ## メモ
 
 - `platforms` を書かずにビルドすると、次のエラーになった(`MenuBarExtra` は macOS 13 以降でしか使えないため)
@@ -109,4 +211,6 @@ swift run
 
   エラーの文は「13.0 以降」だが、この記事では `.v14` にした(13 にしても動くかは未確認)
 - 「終了」ボタンを付けておかないと、アプリを終わらせるにはターミナルで `Ctrl + C` するしかない
-- この作り方は `swift run` で動かすための、練習用の作り方。ダブルクリックで起動できる普通のアプリ(`.app`)にするには、Xcode でプロジェクトを作るなど別の手順が要る(未確認)
+- 「.app にする」で実機で確かめたのは、スクリプトでの作成・起動、右上への表示、Spotlight からの起動まで。**Dock にアイコンが出ないこと、Finder のダブルクリックでの起動、アプリケーションフォルダにコピーしての起動は未確認**
+- アドホック署名(`--sign -`)の `.app` は、自分の Mac で動かす用。**ほかの Mac に配るには向かない**。配るには Apple の開発者登録をして正式に署名する必要がある(未確認)
+- Xcode でプロジェクトを作ると、`.app` を作る作業や正式な署名は Xcode がやってくれる(未確認)

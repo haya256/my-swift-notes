@@ -86,7 +86,7 @@ claude
 | ファイル | 内容 |
 |---|---|
 | `docs/01-hello-world.md` | macOSでSwiftをインストールしてHello Worldを表示する3つの方法(スクリプト実行・swiftc・Swift Package) |
-| `docs/02-menubar-hello-world.md` | SwiftUIのMenuBarExtraで、画面右上のメニューバーにHello World!を表示する小さなアプリを作る |
+| `docs/02-menubar-hello-world.md` | SwiftUIのMenuBarExtraで、画面右上のメニューバーにHello World!を表示する小さなアプリを作り、コマンドラインだけで.appにする |
 
 <!-- toc:end -->
 
