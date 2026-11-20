@@ -1,0 +1,13 @@
+{
+  "_説明": "共通の部分(テンプレートが原本で、各 notes は notes.py update で取りこむファイル)の一覧。テンプレートで管理する。詳しくは KB_GUIDE.md",
+  "files": [
+    "notes.py",
+    "KB_GUIDE.md",
+    "kb-engine.json",
+    "docs/_template.md",
+    "_layouts/article.html",
+    "_includes/footer_custom.html",
+    "_includes/head_custom.html",
+    "_includes/lunr/custom-index.js"
+  ]
+}

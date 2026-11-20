@@ -1,0 +1,62 @@
+# GitHub Pages(Jekyll)の設定。
+# このファイルは notes.py sync が _data/kb.json から作る。手で直さない(直したいときは KB_GUIDE.md を参照)。
+title: "my-swift-notes"
+description: "プログラミング言語 Swift について調べたこと・試したことをまとめた、自分用の非公式メモ"
+lang: ja
+url: https://haya256.github.io
+baseurl: /my-swift-notes
+
+remote_theme: just-the-docs/just-the-docs@v0.12.0
+plugins:
+  - jekyll-remote-theme
+  - jekyll-relative-links
+  - jekyll-seo-tag
+
+relative_links:
+  enabled: true
+  collections: false
+
+search_enabled: true
+heading_anchors: true
+back_to_top: true
+back_to_top_text: ページの先頭へ
+
+aux_links:
+  GitHub: https://github.com/haya256/my-swift-notes
+aux_links_new_tab: true
+
+gh_edit_link: false
+
+# サイトに出さないファイル
+exclude:
+  - README.md
+  - CLAUDE.md
+  - KB_GUIDE.md
+  - LICENSE
+  - notes.py
+  - kb-engine.json
+  - pmo/
+  - config/
+  - data/
+  - Gemfile
+  - Gemfile.lock
+  - vendor/
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+  - scope:
+      path: docs
+    values:
+      layout: article
+
+# index.md の {: .warning } などの枠
+callouts:
+  warning:
+    title: 注意
+    color: red
+  note:
+    title: 外部サービスについて
+    color: blue

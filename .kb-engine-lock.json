@@ -1,0 +1,17 @@
+{
+  "_説明": "notes.py update が書く。手で直さない。取りこんだテンプレートの版と、共通の部分の中身(sha256)の記録",
+  "template": "haya256/my-notes-template",
+  "source": "haya256/my-notes-template",
+  "commit": "68a45991a9b52fea9fb5ba808296ab5f5246cef3",
+  "updated": "2026-11-20",
+  "files": {
+    "notes.py": "c8c1d6b87bbf86e20c292ce93b226087e1a714f661c2b7188c0fa18bc736d266",
+    "KB_GUIDE.md": "d2eeadff73bd1757c72a0722059982616c647c5391a29b622b52a0effbeca637",
+    "kb-engine.json": "34d900588d49f8522daae77c6048693de684f48883da945b2a70aad733079d8a",
+    "docs/_template.md": "aa6cd173a2069ac11348e05cab2a8553b95ae3a067b7705edd62a2b2bc3b7842",
+    "_layouts/article.html": "43691813d046849f34937c05829aab6c3b4afb3f88a574bbd544dfb6b3e4ddc7",
+    "_includes/footer_custom.html": "5ba1626aeb6eff50a35083376e48c9c2bc8c1a1114ff48697bb3d548fe0a2868",
+    "_includes/head_custom.html": "c7f71d06f12df0daed3334094d83a3cb329436fc4f1c1748be79aed6b5094aa2",
+    "_includes/lunr/custom-index.js": "cf2c1126d640f321f6f605e6fb77cbb2b4fa90836a6ba24d4951296418e48609"
+  }
+}

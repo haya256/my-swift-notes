@@ -1,0 +1,40 @@
+---
+layout: default
+---
+{%- comment -%}
+記事(docs/*.md)用のレイアウト。frontmatter の確認日・確認方法・外部サービスを本文の上に、参考を本文の下に出す。
+{%- endcomment -%}
+<div class="note-meta">
+  <span class="label label-grey">確認日 {{ page.checked | date: "%Y-%m-%d" }}</span>
+  {%- if page.verified == "実機" %}
+  <span class="label label-green">実機で確認</span>
+  {%- elsif page.verified == "一部実機" %}
+  <span class="label label-yellow">一部だけ実機で確認</span>
+  {%- else %}
+  <span class="label label-red">実機では未確認(ネットの情報のみ)</span>
+  {%- endif %}
+  {%- if page.thirdparty and page.thirdparty.size > 0 %}
+  <span class="label label-purple">外部サービス: {{ page.thirdparty | join: "、" }}</span>
+  {%- endif %}
+</div>
+
+{{ content }}
+
+{%- if page.source %}
+<hr>
+<section class="note-sources">
+  <h2 id="sources">参考</h2>
+  {%- assign kind = page.source | jsonify | slice: 0 %}
+  {%- if kind == "[" %}{% assign sources = page.source %}{% else %}{% assign sources = page.source | split: "\u0000" %}{% endif %}
+  <ul>
+  {%- for item in sources %}
+    {%- assign first = item | split: " " | first %}
+    {%- if first contains "://" %}
+    <li><a href="{{ first }}" target="_blank" rel="noopener">{{ first | escape }}</a>{{ item | remove_first: first | escape }}</li>
+    {%- else %}
+    <li>{{ item | escape }}</li>
+    {%- endif %}
+  {%- endfor %}
+  </ul>
+</section>
+{%- endif %}

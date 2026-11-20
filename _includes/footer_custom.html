@@ -1,0 +1,4 @@
+{%- comment -%}全ページの下に出す注意書きとライセンス。文言は _data/kb.json から作る(このファイルは共通の部分)。{%- endcomment -%}
+{%- assign kb = site.data.kb -%}
+<p>これは個人が作成した非公式のメモです。{{ kb.owner_org }} とは関係ありません。正確な情報は <a href="{{ kb.support_url }}" target="_blank" rel="noopener">{{ kb.support_name }}</a> を確認してください。</p>
+<p>記事の文章は <a href="https://creativecommons.org/licenses/by/4.0/deed.ja" target="_blank" rel="noopener">CC BY 4.0</a> で公開しています(著作権者:{{ kb.author }})。</p>

@@ -1,0 +1,16 @@
+# エディタ・OSの一時ファイル
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Python
+__pycache__/
+
+# Jekyll をローカルで動かしたとき
+_site/
+.jekyll-cache/
+.sass-cache/
+Gemfile.lock
+vendor/

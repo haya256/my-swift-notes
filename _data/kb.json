@@ -1,0 +1,13 @@
+{
+  "name": "my-swift-notes",
+  "subject": "Swift",
+  "owner_org": "Apple",
+  "support_name": "Swift 公式ドキュメント",
+  "support_url": "https://www.swift.org/documentation/",
+  "description": "プログラミング言語 Swift について調べたこと・試したことをまとめた、自分用の非公式メモ",
+  "ask_example": "Swift の async/await はどう使うの？",
+  "github": "haya256/my-swift-notes",
+  "author": "haya256",
+  "template_repo": "haya256/my-notes-template",
+  "is_template": false
+}
