@@ -89,6 +89,7 @@ claude
 | `docs/02-menubar-hello-world.md` | SwiftUIのMenuBarExtraで、画面右上のメニューバーにHello World!を表示する小さなアプリを作り、コマンドラインだけで.appにする |
 | `docs/03-app-bundle-and-codesign.md` | .appの正体(決まった形のフォルダ)、macOSが起動するまでの流れ、コード署名(アドホック署名と正式な署名・公証)のしくみ |
 | `docs/04-menubar-clock.md` | 02のメニューバーアプリを、1秒ごとに進む時刻表示に変える。label:の書き方、.dateTimeの意味、@StateとTimerで表示を更新するしくみを、3段階の編集で学ぶ |
+| `docs/05-menubar-xcode.md` | 02のメニューバーアプリをXcodeのプロジェクトで作る。Info.plistやシェルスクリプトを書かずに、LSUIElementの設定・実行・.appの取り出しまで |
 
 <!-- toc:end -->
 
