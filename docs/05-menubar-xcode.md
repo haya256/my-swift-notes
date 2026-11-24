@@ -2,7 +2,7 @@
 title: Xcodeでメニューバーアプリを作る
 nav_order: 5
 summary: 02のメニューバーアプリをXcodeのプロジェクトで作る。Info.plistやシェルスクリプトを書かずに、LSUIElementの設定・実行・.appの取り出しまで
-keywords: [Xcode, プロジェクト, 新規プロジェクト, New Project, Choose Template, メニューバー, 右上, MenuBarExtra, SwiftUI, WindowGroup, Info.plist, LSUIElement, Application is agent, UIElement, Dock, Team, Add account, Organization Identifier, Bundle Identifier, Sign to Run Locally, 署名, アドホック署名, Signing & Capabilities, Show Build Folder in Finder, Archive, アーカイブ, xcarchive, DerivedData, ビルドフォルダ, .build, Organizer, Distribute App, .app, swiftc, parse-as-library, パッケージ]
+keywords: [Xcode, プロジェクト, 新規プロジェクト, New Project, Choose Template, メニューバー, 右上, MenuBarExtra, SwiftUI, WindowGroup, Info.plist, LSUIElement, Application is agent, UIElement, Dock, Team, Add account, Organization Identifier, Bundle Identifier, Sign to Run Locally, 署名, アドホック署名, Signing & Capabilities, Show Build Folder in Finder, Archive, アーカイブ, xcarchive, DerivedData, ビルドフォルダ, .build, Spotlight, mdfind, Organizer, Distribute App, .app, swiftc, parse-as-library, パッケージ]
 checked: 2026-11-24
 verified: 一部実機
 thirdparty: []
@@ -167,6 +167,26 @@ struct HelloMenuBarApp: App {
 
 - 自分で触るのは、**材料のフォルダ**と **`/Applications` の `.app`** の2か所だけでよい
 - `~/Library/Developer/Xcode/` の下は Xcode の持ち物。容量が気になったら `DerivedData` は丸ごと消せる(消してよいことは一般的な知識。実機では未確認)
+
+### Spotlight には、どの .app も出てくる
+
+`/Applications` にコピーしなくても、Spotlight から `HelloMenuBar` を起動できた。Spotlight は、`.app` がどこにあっても見つける(02 で、パッケージのフォルダに置いたまま起動できたのと同じ)。
+
+ただし、`mdfind` で調べると、同じ名前の `HelloMenuBar.app` が3つ見つかった。
+
+```bash
+mdfind "kMDItemFSName == 'HelloMenuBar.app'"
+```
+
+| 見つかった場所 | どれか |
+|---|---|
+| 02 のパッケージのフォルダ | 02 の `make-app.sh` で作ったもの |
+| `~/Library/Developer/Xcode/DerivedData/…/Debug/` | ▶ で作った Debug 版 |
+| `~/Library/Developer/Xcode/Archives/…/Products/Applications/` | 「Archive」で作った本番用 |
+
+- Spotlight で出てきたのが、このうちのどれかは分からない。今はどれも同じ表示なので違いが見えないが、コードを直していくと「直したはずなのに古いまま」ということが起きうる
+- **普段使うものは `/Applications` にコピーして、それを使う**と決めておく。作業場(`DerivedData`)や保管箱(`Archives`)の中のものは、Spotlight で出てきても起動しない
+- Spotlight の結果のどれが起動したかを確かめる方法は未確認
 
 パッケージ([02](02-menubar-hello-world.md))でも同じことが起きている。全部が1つのフォルダの中なので目立たないだけ。
 
