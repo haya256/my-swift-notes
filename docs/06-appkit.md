@@ -2,7 +2,7 @@
 title: AppKitとは
 nav_order: 6
 summary: AppKitはMacのアプリの画面を作る昔からの道具。SwiftUIとの違い(手順を書く/できあがりを書く)、NSで始まる名前、04の時計をAppKitで書き直して比べる
-keywords: [AppKit, SwiftUI, UIKit, Cocoa, NeXTSTEP, NS, NSApplication, NSStatusBar, NSStatusItem, NSMenu, NSMenuItem, setActivationPolicy, accessory, Timer, scheduledTimer, DateFormatter, MainActor, assumeIsolated, Swift 6, 命令的, 宣言的, フレームワーク, メニューバー, 時計]
+keywords: [AppKit, SwiftUI, UIKit, Cocoa, NeXTSTEP, Objective-C, オブジェクティブC, 言語, selector, "#selector", NSButton.h, 歴史, オプショナル, Optional, オプショナルチェーン, nil, "?", "!", アンラップ, NS, NSApplication, NSStatusBar, NSStatusItem, NSMenu, NSMenuItem, setActivationPolicy, accessory, Timer, scheduledTimer, DateFormatter, MainActor, assumeIsolated, Swift 6, 命令的, 宣言的, フレームワーク, メニューバー, 時計]
 checked: 2026-11-25
 verified: 一部実機
 thirdparty: []
@@ -19,6 +19,48 @@ source:
 - **AppKit** は、Mac のアプリの画面(ウィンドウ、ボタン、メニュー、メニューバーなど)を作るための、Apple の昔からの道具のセット(フレームワーク)
 - AppKit は「**手順を書く**」書き方、SwiftUI は「**できあがりを書く**」書き方。表示が変わるとき、AppKit は自分で書きかえ、SwiftUI は自動で書きかわる
 - `NS` で始まる名前(`NSApplication`、`NSMenu` など)は AppKit のもの。02 の SwiftUI 版でも、アプリを終わらせる `NSApplication.shared.terminate(nil)` だけは AppKit を使っている
+- AppKit は「Swift より」ではなく「**SwiftUI より**」下の層の道具。Swift は言語で、AppKit と SwiftUI はどちらも Swift から使う道具。AppKit はもともと、Swift の前の言語 **Objective-C** のために作られた
+
+## 言語と道具
+
+```
+言語:     Swift(昔は Objective-C)
+            ↓ どちらも Swift から使える
+道具:     SwiftUI(新しい・できあがりを書く)
+            ↓ Mac では、この上に乗っている
+          AppKit(昔から・手順を書く)
+```
+
+- **Swift** はプログラミング**言語**。**AppKit** と **SwiftUI** は、画面を作るための**道具のセット**(フレームワーク)。この記事の AppKit 版のコードも、Swift で書いている
+- AppKit は古いが、今も Apple が更新を続けている現役の道具。Mac のアプリの多くが使っている
+
+### Objective-C とのつながり
+
+**Objective-C** は、Swift が出る前の Apple の開発言語。AppKit は Objective-C で、Objective-C のために作られた。
+
+| 時代 | 言語 | 画面の道具 |
+|---|---|---|
+| 1980年代後半〜(NeXT 社) | Objective-C | AppKit のもと(NeXTSTEP) |
+| 2001年〜(Mac OS X) | Objective-C | AppKit |
+| 2014年〜 | **Swift** が登場 | AppKit を Swift から使う |
+| 2019年〜 | Swift | **SwiftUI** が登場 |
+
+- Swift は、Objective-C で書かれた道具をそのまま呼び出せるように作られている。そのため、AppKit を作り直さずに Swift から使い続けられた
+- **実機で見えた証拠**:下の「メモ」の時計のエラーを出したとき、エラーの中に AppKit の中身(`NSButton.h`)が出てきた。次の行は Swift ではなく Objective-C の書き方。Swift からは `item.button?.title = ...` と使っている `title` が、もともとはこう書かれている
+
+  ```
+  @property (copy) NSString *title;
+  ```
+
+- Swift のコードに残っている、Objective-C のなごり
+
+  | なごり | 理由 |
+  |---|---|
+  | `NS` で始まる名前 | Objective-C には、名前を入れ物で分けるしくみ(Swift のモジュールのようなもの)がない。名前がぶつからないように、頭に `NS` を付けた |
+  | `#selector(...)` | Objective-C には、「このメソッドを呼んで」と名前で頼むしくみがある。AppKit のメニューはこのしくみで動くので、Swift でも `#selector` で名前を渡す |
+
+- Objective-C は今も動き、古いアプリなどには残っている。新しく書くなら Swift がふつう。読めなくても困らないが、`NS` や `#selector` を見たら「Objective-C 生まれの道具を使っている」と分かれば十分
+- 年や歴史は一般的な知識で、この記事では確かめていない
 
 ## AppKit と SwiftUI
 
@@ -79,6 +121,30 @@ app.run()
 - SwiftUI 版は「メニューバーに "Hello World!"、中に"終了"ボタン」と、**できあがりの形**だけを書いている
 - AppKit 版は、上から順に**作業の手順**を書いている。メニューバーに場所をもらい(`statusItem`)、文字を入れ(`title`)、メニューを作り(`NSMenu`)、くっつける(`item.menu = menu`)。最後に `app.run()` でアプリを動かし続ける
 
+#### `item.button?` の `?`(オプショナル)
+
+`item.button?.title = ...` の `?` は、「**ボタンがあれば** `title` を書きかえる。なければ何もしない」という意味(**オプショナルチェーン**)。
+
+- `item.button` の型は `NSStatusBarButton?`。型の後ろの `?` は「**オプショナル**」の印で、「中身が入っているかもしれないし、空(`nil`)かもしれない」という意味
+- 空かもしれないものの中身を、いきなり触ることはできない。`?` を外して `item.button.title = "Hello"` と書くと、ビルドで次のエラーになった
+
+  ```
+  error: value of optional type 'NSStatusBarButton?' must be unwrapped to refer to member 'title' ...
+  note: chain the optional using '?' to access member 'title' only for non-'nil' base values
+  note: force-unwrap using '!' to abort execution if the optional value contains 'nil'
+  ```
+
+- エラーの `note:` が、直し方を2つ教えてくれている
+
+  | 書き方 | 意味 | 空だったら |
+  |---|---|---|
+  | `item.button?.title = ...` | あれば書きかえる(オプショナルチェーン) | 何もしない |
+  | `item.button!.title = ...` | 必ずあるはずなので、そのまま書きかえる | **アプリが落ちる** |
+
+  ふつうは、安全な `?` を使う
+- 「空かもしれない」は Objective-C から来ている。Objective-C では、どんなものも空(`nil`)になりえた。Swift はそれを型ではっきりさせて、空かもしれないものには `?` を付ける決まりにした。AppKit は Objective-C 生まれなので、Swift から使うと `?` がよく出てくる(この段落は一般的な知識)
+- メニューバーのボタンは、実際にはまず空にならないが、型の上では「空かもしれない」とされている
+
 ### 時計([04-menubar-clock.md](04-menubar-clock.md))
 
 違いがいちばんよく分かるのは、**表示が変わるとき**。04 の時計を AppKit で書くと、次のようになる。
@@ -116,7 +182,7 @@ app.run()
 |---|---|
 | `DateFormatter()` / `dateFormat = "HH:mm:ss"` | 時刻を `23:25:30` のような文字にする道具と、その形 |
 | `Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { ... }` | 1秒ごとに `{ }` の中を実行するタイマー |
-| `item.button?.title = ...` | メニューバーの文字を、**自分で書きかえる** |
+| `item.button?.title = ...` | メニューバーの文字を、**自分で書きかえる**(`?` の意味は上の「オプショナル」) |
 | `MainActor.assumeIsolated { ... }` | 「ここは画面を担当する場所(メインスレッド)で動いている」とコンパイラーに伝える(下の「メモ」) |
 | `timer.fire()` | タイマーを今すぐ1回動かす。これがないと、起動してから1秒間は何も出ない |
 
