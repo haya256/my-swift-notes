@@ -2,7 +2,7 @@
 title: Xcodeでメニューバーアプリを作る
 nav_order: 5
 summary: 02のメニューバーアプリをXcodeのプロジェクトで作る。Info.plistやシェルスクリプトを書かずに、LSUIElementの設定・実行・.appの取り出しまで
-keywords: [Xcode, プロジェクト, 新規プロジェクト, New Project, Choose Template, メニューバー, 右上, MenuBarExtra, SwiftUI, WindowGroup, Info.plist, LSUIElement, Application is agent, UIElement, Dock, Team, Add account, Organization Identifier, Bundle Identifier, Sign to Run Locally, 署名, アドホック署名, Signing & Capabilities, Show Build Folder in Finder, Archive, アーカイブ, xcarchive, DerivedData, ビルドフォルダ, .build, Spotlight, mdfind, Organizer, Distribute App, .app, swiftc, parse-as-library, パッケージ]
+keywords: [Xcode, プロジェクト, 新規プロジェクト, New Project, Choose Template, メニューバー, 右上, MenuBarExtra, SwiftUI, WindowGroup, Info.plist, LSUIElement, Application is agent, UIElement, Dock, Team, Add account, Organization Identifier, Bundle Identifier, Sign to Run Locally, 署名, アドホック署名, Signing & Capabilities, Show Build Folder in Finder, Archive, アーカイブ, xcarchive, DerivedData, ビルドフォルダ, .build, Spotlight, mdfind, Organizer, Distribute App, .app, swiftc, parse-as-library, パッケージ, AppKit, NSStatusBar, NSStatusItem, NSMenu, setActivationPolicy, accessory]
 checked: 2026-11-24
 verified: 一部実機
 thirdparty: []
@@ -22,15 +22,57 @@ source:
 
 ## どの作り方を選ぶか
 
-メニューバーアプリは、3つの作り方で作れる。
+メニューバーアプリは、4つの作り方で作れる。
 
 | 作り方 | 書くもの | `.app` にするには | 向いているとき |
 |---|---|---|---|
-| `swiftc` で `.swift` ファイル1つ | `.swift` ファイル1つ | フォルダ・`Info.plist`・署名を自分で用意する | とにかく小さく試したい |
+| AppKit で `.swift` ファイル1つ(下の「AppKit で書く」) | `.swift` ファイル1つ | フォルダ・`Info.plist`・署名を自分で用意する | いちばん手軽に試したい。`swift hello.swift` だけで動く |
+| SwiftUI を `swiftc` で `.swift` ファイル1つ(下の「メモ」) | `.swift` ファイル1つ | 同じく自分で用意する | 02 のコードを、パッケージなしで試したい |
 | Swift Package([02](02-menubar-hello-world.md)) | `Package.swift` と `.swift` ファイル | 同じく自分で用意する(02 の `make-app.sh`) | しくみを知りたい、ファイルが増えてきた |
 | Xcode のプロジェクト(この記事) | `.swift` ファイル(ほかは画面で設定) | Xcode がやる | ちゃんと使う・配るアプリ |
 
 `.app` の中身と署名のしくみは [03-app-bundle-and-codesign.md](03-app-bundle-and-codesign.md) を見てください。Xcode は、03 に書いたことを裏でやっている。
+
+### AppKit で書く(ファイル1つ、いちばん手軽)
+
+SwiftUI の `MenuBarExtra` ではなく、昔からある **AppKit** の道具(`NSStatusBar`、`NSMenu`)で書くこともできる。`hello.swift` を次のように書く。
+
+```swift
+import AppKit
+
+let app = NSApplication.shared
+app.setActivationPolicy(.accessory)  // Dockに出さない(LSUIElementの代わり)
+
+let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
+item.button?.title = "Hello World!"
+
+let menu = NSMenu()
+menu.addItem(NSMenuItem(title: "終了",
+                        action: #selector(NSApplication.terminate(_:)),
+                        keyEquivalent: "q"))
+item.menu = menu
+
+app.run()
+```
+
+```bash
+swift hello.swift
+```
+
+- 画面右上のメニューバーに「Hello World!」が出た。**Dock にはアイコンが出なかった**
+- [01-hello-world.md](01-hello-world.md) の方法1と同じく、**上から順に実行する**コード。`@main` がないので、`swiftc hello.swift -o hello` でビルドするときも `-parse-as-library` はいらなかった
+- `setActivationPolicy(.accessory)` は、`Info.plist` の `LSUIElement` の代わり。Dock にアイコンを出さない
+- ターミナルから動かすだけなら `.app` も `Info.plist` もいらない。ダブルクリックや Spotlight で起動するには、ほかの作り方と同じく `.app` にする
+
+| 書いてあること | 意味 |
+|---|---|
+| `NSApplication.shared` | このアプリそのもの |
+| `NSStatusBar.system.statusItem(...)` | メニューバーに置く場所(ステータス項目)を1つもらう |
+| `item.button?.title = ...` | その場所に出す文字 |
+| `NSMenu()` / `NSMenuItem(...)` | クリックしたときに出るメニューと、その中の項目 |
+| `app.run()` | アプリを動かし続ける。これがないと、すぐに終わる |
+
+AppKit 版は手軽だが、02 や [04-menubar-clock.md](04-menubar-clock.md) の SwiftUI のコード(`MenuBarExtra`、`@State` など)はそのまま使えない。記事の続きで学ぶなら、SwiftUI(パッケージ・Xcode)の方が向いている。
 
 ## 手順
 
